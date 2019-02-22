@@ -1,6 +1,7 @@
 import os
 import numpy
 import cv2
+import tensorflow as tf
 
 f = open("WIDER/wider_face_train_annot.txt")
 # Total annotated image number is 12880
@@ -11,7 +12,8 @@ for j in range(12880):
   filepath = os.path.join("./WIDER/WIDER_train/images/", filename)
   print(filepath)
 
-  encoded = open(filepath).read()
+  with tf.gfile.GFile(filepath, 'rb') as fid:
+    encoded = fid.read()
   image = cv2.imread(filepath)
   height, width, channel = image.shape
   print("height is %d, width is %d, channel is %d" % (height, width, channel))
