@@ -40,7 +40,8 @@ def parse_example(f):
   print(filepath)
   image_raw = cv2.imread(filepath)
 
-  encoded_image_data = open(filepath).read()
+  with tf.gfile.GFile(filepath, 'rb') as fid:
+    encoded_image_data = fid.read()
   key = hashlib.sha256(encoded_image_data).hexdigest()
 
   height, width, channel = image_raw.shape
@@ -58,7 +59,7 @@ def parse_example(f):
             ymins.append( max(0.005, (float(annot[1]) / height) ) )
             xmaxs.append( min(0.995, ((float(annot[0]) + float(annot[2])) / width) ) )
             ymaxs.append( min(0.995, ((float(annot[1]) + float(annot[3])) / height) ) )
-            classes_text.append('face')
+            classes_text.append('face'.encode('utf8'))
             classes.append(1)
             poses.append("front".encode('utf8'))
             truncated.append(int(0))
@@ -72,8 +73,8 @@ def parse_example(f):
   tf_example = tf.train.Example(features=tf.train.Features(feature={
     'image/height': dataset_util.int64_feature(int(height)),
     'image/width': dataset_util.int64_feature(int(width)),
-    'image/filename': dataset_util.bytes_feature(filename),
-    'image/source_id': dataset_util.bytes_feature(filename),
+    'image/filename': dataset_util.bytes_feature(filename.encode('utf8')),
+    'image/source_id': dataset_util.bytes_feature(filename.encode('utf8')),
     'image/key/sha256': dataset_util.bytes_feature(key.encode('utf8')),
     'image/encoded': dataset_util.bytes_feature(encoded_image_data),
     'image/format': dataset_util.bytes_feature('jpeg'.encode('utf8')),
